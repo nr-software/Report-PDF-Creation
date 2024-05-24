@@ -8,7 +8,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="report_pdf_wrapper",
-    version="0.1.0",
+    version="0.2.0",
     author="Alex Nuccio",
     author_email="nrsoftwareservices@gmail.com",
     description="A simple pip module for creating generic PDF reports.",
