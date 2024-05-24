@@ -24,11 +24,11 @@ class PdfWrapper:
         if draw_dimensions:
             self.draw_dimensions()
 
-    def draw_report_pdf(self, page_num=0):
+    def draw_report_pdf(self, page_num=None):
         if self.logo_path is not None:
             self.draw_logo(self.logo_path)
         # if document is multiple pages, then add suffix to mutable widget keys to prevent duplication
-        if page_num != 0:
+        if page_num is not None:
             widget_suffix = f"_{page_num}"
         else:
             widget_suffix = ""
