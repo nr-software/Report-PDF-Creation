@@ -24,14 +24,19 @@ class PdfWrapper:
         if draw_dimensions:
             self.draw_dimensions()
 
-    def draw_report_pdf(self):
+    def draw_report_pdf(self, page_num=0):
         if self.logo_path is not None:
             self.draw_logo(self.logo_path)
+        # if document is multiple pages, then add suffix to mutable widget keys to prevent duplication
+        if page_num != 0:
+            widget_suffix = f"_{page_num}"
+        else:
+            widget_suffix = ""
         self.draw_technician_info()
         self.draw_customer_info()
-        self.draw_equipment_info()
-        self.draw_checklist()
-        self.draw_comments()
+        self.draw_equipment_info(widget_suffix)
+        self.draw_checklist(widget_suffix)
+        self.draw_comments(widget_suffix)
 
     def draw_service_call_pdf(self):
         if self.logo_path is not None:
@@ -105,19 +110,19 @@ class PdfWrapper:
             start_point = Point(top_left.x, top_left.y + height)  # update start point for next label
         self.draw_box(Point(60, 175), Point(520, 175), Point(520, 277), Point(60, 277))
 
-    def draw_equipment_info(self):
+    def draw_equipment_info(self, widget_suffix=""):
         self.page.insert_text(Point(62, 306), "Equipment Info", fontsize=12)
         self.draw_box(Point(60, 310), Point(520, 310), Point(520, 403), Point(60, 403))
         self.page.insert_text(Point(70, 330), "Make:", fontsize=11)
-        self._add_text_widget("equipment_make_field", Point(70, 314), 25, 170)
+        self._add_text_widget(f"equipment_make_field{widget_suffix}", Point(70, 314), 25, 170)
         self.page.insert_text(Point(70, 360), "Model:", fontsize=11)
-        self._add_text_widget("equipment_model_field", Point(70, 344), 25, 170)
+        self._add_text_widget(f"equipment_model_field{widget_suffix}", Point(70, 344), 25, 170)
         self.page.insert_text(Point(300, 330), "Site ID:", fontsize=11)
-        self._add_text_widget("equipment_site_field", Point(300, 314), 25, 160)
+        self._add_text_widget(f"equipment_site_field{widget_suffix}", Point(300, 314), 25, 160)
         self.page.insert_text(Point(300, 360), "Equipment ID:", fontsize=11)
-        self._add_text_widget("equipment_id_field", Point(320, 344), 25, 140)
+        self._add_text_widget(f"equipment_id_field{widget_suffix}", Point(320, 344), 25, 140)
         self.page.insert_text(Point(70, 390), "Notes:", fontsize=11)
-        self._add_text_widget("equipment_notes_field", Point(70, 374), 25, 390)
+        self._add_text_widget(f"equipment_notes_field{widget_suffix}", Point(70, 374), 25, 390)
 
     def _add_text_widget(self, name, top_left, height, width):
         field = fitz.Widget()
@@ -128,7 +133,7 @@ class PdfWrapper:
         self.draw_underline(field.rect)
         self.page.add_widget(field)
 
-    def draw_checklist(self):
+    def draw_checklist(self, widget_suffix=""):
         self.page.insert_text(Point(62, 431), "Inspection Checklist: ", fontsize=12)
         field = fitz.Widget()
         field.field_name = "report_type_field"
@@ -146,8 +151,9 @@ class PdfWrapper:
         # draw checkboxes
         line = 1
         for i in range(463, 700, 15):
+            # add completed checkbox
             point = Point(385, i)
-            field_name = f"completed_{line}_field"
+            field_name = f"completed_{line}_field{widget_suffix}"
             self._add_checkbox_widget(point, field_name, (0, 0, 0))
             # add line item
             field = fitz.Widget()
@@ -158,12 +164,10 @@ class PdfWrapper:
             field.rect = fitz.Rect(68, point.y - 2, 340, point.y + 10)
             self.draw_line(Point(60, i - 3), Point(520, i - 3))
             self.page.add_widget(field)
-            line += 1
-        line = 1
-        for i in range(463, 700, 15):
-            point = Point(470, i)
-            field_name = f"attention_{i}_field"
-            self._add_checkbox_widget(point, field_name, getColor("red"))
+            # add red attention checkbox
+            attention_point = Point(470, i)
+            field_name = f"attention_{i}_field{widget_suffix}"
+            self._add_checkbox_widget(attention_point, field_name, getColor("red"))
             line += 1
 
     def _add_checkbox_widget(self, top_left, name, color):
@@ -175,11 +179,11 @@ class PdfWrapper:
         field.rect = fitz.Rect(top_left, top_left.x + 10, top_left.y + 10)
         self.page.add_widget(field)
 
-    def draw_comments(self):
+    def draw_comments(self, widget_suffix=""):
         self.page.insert_text(Point(62, 726), "Comments", fontsize=12)
         self.draw_box(Point(60, 730), Point(520, 730), Point(520, 810), Point(60, 810))
         field = fitz.Widget()
-        field.field_name = "comments_field"
+        field.field_name = f"comments_field{widget_suffix}"
         field.field_type = fitz.PDF_WIDGET_TYPE_TEXT
         field.text_fontsize = 11
         field.text_maxlen = 450
