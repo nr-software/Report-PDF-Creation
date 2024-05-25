@@ -166,7 +166,7 @@ class PdfWrapper:
             self.page.add_widget(field)
             # add red attention checkbox
             attention_point = Point(470, i)
-            field_name = f"attention_{i}_field{widget_suffix}"
+            field_name = f"attention_{line}_field{widget_suffix}"
             self._add_checkbox_widget(attention_point, field_name, getColor("red"))
             line += 1
 
