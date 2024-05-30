@@ -220,7 +220,7 @@ class PdfWrapper:
             field.field_type = fitz.PDF_WIDGET_TYPE_TEXT
             field.text_maxlen = 100
             field.rect = fitz.Rect(68, point.y - 2, 275, point.y + 15)
-            self.draw_line(Point(60, i - 3), Point(520, i - 3))
+            self.draw_line(Point(60, i - 3), Point(340, i - 3))
             self.page.add_widget(field)
             # add quantity item
             field = fitz.Widget()
@@ -229,12 +229,11 @@ class PdfWrapper:
             field.text_maxlen = 10
             field.rect = fitz.Rect(280, point.y - 2, 330, point.y + 15)
             self.page.add_widget(field)
-            self.page.insert_text(Point(350, point.y + 10), "Yes", fontsize=10)
-            self._add_checkbox_widget(Point(375, point.y + 2), f"completed_{line}_checkbox", (0, 0, 0))
-            self.page.insert_text(Point(430, point.y + 10), "More service", fontsize=10, color=getColor("red"))
-            self._add_checkbox_widget(Point(500, point.y + 2), f"service_{line}_checkbox", getColor("red"))
-
             line += 1
+        self.page.insert_text(Point(353, 622), "Yes", fontsize=10)
+        self._add_checkbox_widget(Point(378, 614), f"completed_checkbox", (0, 0, 0))
+        self.page.insert_text(Point(427, 622), "More service", fontsize=10, color=getColor("red"))
+        self._add_checkbox_widget(Point(497, 614), f"service_checkbox", getColor("red"))
 
     def draw_underline(self, rect):
         start = (rect.x0, rect.y1)
