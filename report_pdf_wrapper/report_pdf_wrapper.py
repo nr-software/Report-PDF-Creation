@@ -46,6 +46,7 @@ class PdfWrapper:
         self.draw_equipment_info()
         self.draw_work_summary()
         self.draw_materials()
+        self.add_time_footer()
 
     def save(self, path):
         self.document.save(path)
@@ -57,6 +58,18 @@ class PdfWrapper:
         rect = fitz.Rect(60, 0, 260, 200)
         img = open(logo_path, "rb").read()
         self.page.insert_image(rect, stream=img)
+
+    def add_time_footer(self):
+        y_start = 815
+        x_start = 0
+        y_end = self.page.rect.height
+        x_end = self.page.rect.width
+        rect = fitz.Rect(x_start, y_start, x_end, y_end)
+        light_grey = (0.9, 0.9, 0.9)
+        self.page.draw_rect(rect, color=None, fill=light_grey, overlay=True)
+        self.page.insert_text(fitz.Point(80, 830), "For technician use only", fontsize=8)
+        self._add_footer_text_field("Time In:", "time_in_field", fitz.Point(200, 822), 40, 16)
+        self._add_footer_text_field("Time Out:", "time_out_field", fitz.Point(340, 822), 40, 16)
 
     def draw_technician_info(self):
         self.draw_box(Point(300, 48), Point(520, 48), Point(520, 150), Point(300, 150))
@@ -130,6 +143,18 @@ class PdfWrapper:
         field.field_type = fitz.PDF_WIDGET_TYPE_TEXT
         field.text_fontsize = 11
         field.rect = fitz.Rect(top_left.x + 50, top_left.y, top_left.x + 50 + width, top_left.y + height)
+        self.draw_underline(field.rect)
+        self.page.add_widget(field)
+
+    def _add_footer_text_field(self, label_text, field_name, top_left, width, height):
+        bottom_right = fitz.Point(top_left.x + width, top_left.y + height)
+        adjust = self.page.insert_textbox(fitz.Rect(top_left, bottom_right), label_text, fontsize=8)
+        field = fitz.Widget()
+        field.field_name = field_name
+        field.field_type = fitz.PDF_WIDGET_TYPE_TEXT
+        field.text_fontsize = 8
+        field_x = top_left.x + width
+        field.rect = fitz.Rect(field_x, top_left.y, field_x + 80, top_left.y + height - adjust)
         self.draw_underline(field.rect)
         self.page.add_widget(field)
 
