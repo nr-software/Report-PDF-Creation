@@ -60,16 +60,45 @@ class PdfWrapper:
         self.page.insert_image(rect, stream=img)
 
     def add_time_footer(self):
-        y_start = 815
+        y_start = 792
         x_start = 0
         y_end = self.page.rect.height
         x_end = self.page.rect.width
-        rect = fitz.Rect(x_start, y_start, x_end, y_end)
-        light_grey = (0.9, 0.9, 0.9)
-        self.page.draw_rect(rect, color=None, fill=light_grey, overlay=True)
-        self.page.insert_text(fitz.Point(80, 830), "For technician use only", fontsize=8)
-        self._add_footer_text_field("Time In:", "time_in_field", fitz.Point(200, 822), 40, 16)
-        self._add_footer_text_field("Time Out:", "time_out_field", fitz.Point(340, 822), 40, 16)
+        grey_rect = fitz.Rect(x_start, y_start, x_end, y_end)
+        self.page.draw_rect(grey_rect, color=None, fill=(0.9, 0.9, 0.9), overlay=True)
+        self.page.insert_text(fitz.Point(40, 810), "For technician use only", fontsize=8)
+        # draw table
+        table_start_x = 150
+        table_end_x = 425
+        table_start_y = 795
+        table_end_y = int(self.page.rect.height - 4)
+        table_rect = fitz.Rect(table_start_x, table_start_y, table_end_x, table_end_y)
+        self.page.draw_rect(table_rect, color=getColor('black'), width=0.5)
+        # Calculate vertical spacing
+        column_width = int((table_end_x - table_start_x) / 4)
+        labels = ["Technician", "Standard", "1.5", "2"]
+        for i, label in enumerate(labels):
+            column_x = table_start_x + i * column_width
+            if i > 0:
+                self.draw_line(fitz.Point(column_x, table_start_y), fitz.Point(column_x, table_end_y), width=0.5)
+            label_x = column_x + 5
+            self.page.insert_text(fitz.Point(label_x, table_start_y + 8), label, fontsize=8)
+        # Draw horizontal lines and add text widgets
+        row_height = int((table_end_y - table_start_y) / 4) + 1
+        for row in range(1, 4):  # Rows after the labels
+            for col in range(4):  # 4 columns
+                column_x = table_start_x + col * column_width
+                row_y = table_start_y + row * row_height
+                self.draw_line(fitz.Point(table_start_x, row_y), fitz.Point(table_end_x, row_y), width=0.5)
+                widget_rect = fitz.Rect(column_x, row_y, column_x + column_width, row_y + row_height)
+                field_name = f"technician_hour_{row}_{col}"
+                widget = fitz.Widget()
+                widget.field_name = field_name
+                widget.field_type = fitz.PDF_WIDGET_TYPE_TEXT
+                widget.rect = widget_rect
+                widget.text_fontsize = 8
+                widget.text_color = (0, 0, 0)
+                self.page.add_widget(widget)
 
     def draw_technician_info(self):
         self.draw_box(Point(300, 48), Point(520, 48), Point(520, 150), Point(300, 150))
@@ -228,16 +257,16 @@ class PdfWrapper:
 
     def draw_materials(self):
         self.page.insert_text(Point(62, 580), "Materials/Parts", fontsize=12)
-        self.draw_box(Point(60, 584), Point(520, 584), Point(520, 810), Point(60, 810))
+        self.draw_box(Point(60, 584), Point(520, 584), Point(520, 790), Point(60, 790))
         self.page.insert_text(Point(150, 601), "Item", fontsize=11)
         self.page.insert_text(Point(300, 601), "Qty", fontsize=11)
         self.page.insert_text(Point(400, 601), "Completed?", fontsize=11)
         self.draw_line(Point(60, 609), Point(520, 609))  # title separator
-        self.draw_line(Point(275, 584), Point(275, 810))  # middle separator
-        self.draw_line(Point(340, 584), Point(340, 810))  # right separator
+        self.draw_line(Point(275, 584), Point(275, 790))  # middle separator
+        self.draw_line(Point(340, 584), Point(340, 790))  # right separator
         # draw checkboxes
         line = 1
-        for i in range(612, 800, 20):
+        for i in range(612, 780, 20):
             point = Point(385, i)
             # add material item
             field = fitz.Widget()
@@ -276,8 +305,8 @@ class PdfWrapper:
         self.page.draw_line(bottom_right, bottom_left, color=getColor("black"), width=1)
         self.page.draw_line(bottom_left, top_left, color=getColor("black"), width=1)
 
-    def draw_line(self, p1, p2):
-        self.page.draw_line(p1, p2, color=getColor("black"), width=1)
+    def draw_line(self, p1, p2, width: float = 1):
+        self.page.draw_line(p1, p2, color=getColor("black"), width=width)
 
     # -------- for testing ------------
     def draw_dimensions(self):
