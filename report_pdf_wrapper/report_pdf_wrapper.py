@@ -240,8 +240,9 @@ class PdfWrapper:
         field.field_name = f"comments_field{widget_suffix}"
         field.field_type = fitz.PDF_WIDGET_TYPE_TEXT
         field.text_fontsize = 11
-        field.text_maxlen = 450
+        field.text_maxlen = 550
         field.rect = fitz.Rect(Point(60, 730), Point(520, 810))
+        field.field_flags = fitz.PDF_TX_FIELD_IS_MULTILINE
         self.page.add_widget(field)
 
     def draw_work_summary(self):
@@ -251,8 +252,9 @@ class PdfWrapper:
         field.field_name = "work_summary_field"
         field.field_type = fitz.PDF_WIDGET_TYPE_TEXT
         field.text_fontsize = 11
-        field.text_maxlen = 450
+        field.text_maxlen = 900
         field.rect = fitz.Rect(Point(60, 435), Point(520, 550))
+        field.field_flags = fitz.PDF_TX_FIELD_IS_MULTILINE
         self.page.add_widget(field)
 
     def draw_materials(self):
