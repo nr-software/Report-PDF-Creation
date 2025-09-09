@@ -251,10 +251,10 @@ class PdfWrapper:
         field = fitz.Widget()
         field.field_name = "work_summary_field"
         field.field_type = fitz.PDF_WIDGET_TYPE_TEXT
-        field.text_fontsize = 11
-        field.text_maxlen = 900
+        field.text_fontsize = 0 # auto is needed for shrinking text
+        field.text_maxlen = 10000
         field.rect = fitz.Rect(Point(60, 435), Point(520, 550))
-        field.field_flags = fitz.PDF_TX_FIELD_IS_MULTILINE
+        field.field_flags = fitz.PDF_TX_FIELD_IS_MULTILINE | fitz.PDF_TX_FIELD_IS_DO_NOT_SCROLL
         self.page.add_widget(field)
 
     def draw_materials(self):
